@@ -1,0 +1,4 @@
+**/obj/ 
+build.sh
+**/bin/
+*.sln

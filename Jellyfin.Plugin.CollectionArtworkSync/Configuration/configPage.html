@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Artwork Sync</title>
+</head>
+<body>
+    <div id="ArtworkSyncConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input">
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="ArtworkSyncConfigForm">
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="ArtworkDirPath">External Artworks Directory Path</label>
+                        <input id="ArtworkDirPath" name="ArtworkDirPath" type="text" is="emby-input" />
+                        <div class="fieldDescription">Location of the folder with your external images</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="ArtworkDirPath">Only overwrite Artworks if necessary</label>
+                         <select is="emby-select" id="Options" name="Options" class="emby-select-withcolor emby-select">
+                            <option id="hash" value="Hash">Compare Files by Hash</option>
+                            <option id="timestamp" value="TimeStamp">Compare Files by Timestamp</option>
+                            <option id="none" value="AlwaysWrite">Don't Compare - Always Write</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript">
+            var TemplateConfig = {
+                pluginUniqueId: '33ecce10-f862-49b0-aa8d-b45baf5a978b'
+            };
+
+            document.querySelector('#ArtworkSyncConfigPage')
+                .addEventListener('pageshow', function() {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(TemplateConfig.pluginUniqueId).then(function (config) {
+                        document.querySelector('#ArtworkDirPath').value = config.ExternalArtworkDirectoryPath;
+                        document.querySelector('#Options').value = config.OnlyWriteChangedArtworks;
+                        Dashboard.hideLoadingMsg();
+                    });
+                });
+
+            document.querySelector('#ArtworkSyncConfigForm')
+                .addEventListener('submit', function(e) {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(TemplateConfig.pluginUniqueId).then(function (config) {
+                    config.ExternalArtworkDirectoryPath = document.querySelector('#ArtworkDirPath').value;
+                    config.OnlyWriteChangedArtworks = document.querySelector('#Options').value;
+                    ApiClient.updatePluginConfiguration(TemplateConfig.pluginUniqueId, config).then(function (result) {
+                        Dashboard.processPluginConfigurationUpdateResult(result);
+                    });
+                });
+
+                e.preventDefault();
+                return false;
+            });
+        </script>
+    </div>
+</body>
+</html>
